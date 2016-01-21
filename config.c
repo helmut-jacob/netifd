@@ -180,6 +180,8 @@ config_init_devices(void)
 				devtype = &macvlan_device_type;
 			else if (!strcmp(type, "tunnel"))
 				devtype = &tunnel_device_type;
+			else if (!strcmp(type, "ovs"))
+				devtype = &ovs_device_type;
 		}
 
 		if (devtype)

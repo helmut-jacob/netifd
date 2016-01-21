@@ -209,6 +209,7 @@ extern const struct device_type bridge_device_type;
 extern const struct device_type tunnel_device_type;
 extern const struct device_type macvlan_device_type;
 extern const struct device_type vlandev_device_type;
+extern const struct device_type ovs_device_type;
 
 void device_lock(void);
 void device_unlock(void);

@@ -71,6 +71,7 @@
 #include "netifd.h"
 #include "device.h"
 #include "system.h"
+#include "system-ovs.h"
 
 struct event_socket {
 	struct uloop_fd uloop;
@@ -275,7 +276,7 @@ static void system_set_dev_sysctl(const char *path, const char *device, const ch
 	system_set_sysctl(dev_buf, val);
 }
 
-static void system_set_disable_ipv6(struct device *dev, const char *val)
+void system_set_disable_ipv6(struct device *dev, const char *val)
 {
 	system_set_dev_sysctl("/proc/sys/net/ipv6/conf/%s/disable_ipv6", dev->ifname, val);
 }
@@ -806,6 +807,9 @@ void system_if_clear_state(struct device *dev)
 		return;
 
 	system_if_flags(dev->ifname, 0, IFF_UP);
+
+	/* Clear ovs state first to not conflict with the ovs bridge compat mode */
+	system_ovs_if_clear_state(dev);
 
 	if (system_is_bridge(dev->ifname, buf, sizeof(buf))) {
 		D(SYSTEM, "Delete existing bridge named '%s'\n", dev->ifname);

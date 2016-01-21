@@ -155,4 +155,6 @@ void system_fd_set_cloexec(int fd);
 
 int system_update_ipv6_mtu(struct device *device, int mtu);
 
+void system_set_disable_ipv6(struct device *dev, const char *val);
+
 #endif
