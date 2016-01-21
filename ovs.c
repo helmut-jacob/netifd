@@ -168,6 +168,8 @@ ovs_disable_port(struct ovs_port *op)
 	system_ovs_delport(&ost->dev, op->dev.dev);
 	device_release(&op->dev);
 
+	device_broadcast_event(&ost->dev, DEV_EVENT_TOPO_CHANGE);
+
 	return 0;
 }
 
@@ -197,6 +199,8 @@ ovs_enable_port(struct ovs_port *op)
 	ret = system_ovs_setoptions(op->dev.dev, &ost->config);
 	if (ret < 0)
 		D(DEVICE, "Bridge options %s of %s could not be set\n", ost->config.options, op->dev.dev->ifname);
+
+	device_broadcast_event(&ost->dev, DEV_EVENT_TOPO_CHANGE);
 
 	return 0;
 
@@ -297,6 +301,10 @@ ovs_base_cb(struct device_user *dev, enum device_event ev)
 		if (ob->present)
 			ovs_remove_base(ob);
 
+		break;
+	case DEV_EVENT_TOPO_CHANGE:
+		/* Propagate topo changes */
+		device_broadcast_event(&ost->dev, DEV_EVENT_TOPO_CHANGE);
 		break;
 	default:
 		return;
