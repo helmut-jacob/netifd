@@ -27,6 +27,8 @@ enum {
 	OVS_ATTR_BASE,
 	OVS_ATTR_TAG,
 	OVS_ATTR_EMPTY,
+	OVS_ATTR_TYPE,
+	OVS_ATTR_OPTIONS,
 	__OVS_ATTR_MAX
 };
 
@@ -35,6 +37,8 @@ static const struct blobmsg_policy ovs_attrs[__OVS_ATTR_MAX] = {
 	[OVS_ATTR_BASE] = { "ovs_base", BLOBMSG_TYPE_STRING },
 	[OVS_ATTR_TAG] = { "ovs_tag", BLOBMSG_TYPE_INT32 },
 	[OVS_ATTR_EMPTY] = { "ovs_empty", BLOBMSG_TYPE_BOOL },
+	[OVS_ATTR_TYPE] = { "ovs_type", BLOBMSG_TYPE_STRING },
+	[OVS_ATTR_OPTIONS] = { "ovs_options", BLOBMSG_TYPE_STRING },
 };
 
 static const struct uci_blob_param_info ovs_attr_info[__OVS_ATTR_MAX] = {
@@ -185,6 +189,14 @@ ovs_enable_port(struct ovs_port *op)
 		D(DEVICE, "Bridge device %s could not be added\n", op->dev.dev->ifname);
 		goto error;
 	}
+
+	ret = system_ovs_settype(op->dev.dev, &ost->config);
+	if (ret < 0)
+		D(DEVICE, "Bridge type %s of %s could not be set\n", ost->config.type, op->dev.dev->ifname);
+
+	ret = system_ovs_setoptions(op->dev.dev, &ost->config);
+	if (ret < 0)
+		D(DEVICE, "Bridge options %s of %s could not be set\n", ost->config.options, op->dev.dev->ifname);
 
 	return 0;
 
@@ -577,6 +589,8 @@ ovs_apply_settings(struct ovs_state *ost, struct blob_attr **tb)
 	cfg->tag = 0;
 	cfg->base = NULL;
 	cfg->empty = false;
+	cfg->type = NULL;
+	cfg->options = NULL;
 
 	if (tb[OVS_ATTR_TAG] && tb[OVS_ATTR_BASE] ) {
 		cfg->tag = blobmsg_get_u32(tb[OVS_ATTR_TAG]);
@@ -585,6 +599,12 @@ ovs_apply_settings(struct ovs_state *ost, struct blob_attr **tb)
 
 	if (tb[OVS_ATTR_EMPTY])
 		cfg->empty = blobmsg_get_bool(tb[OVS_ATTR_EMPTY]);
+
+	if (tb[OVS_ATTR_TYPE])
+		cfg->type = blobmsg_get_string(tb[OVS_ATTR_TYPE]);
+
+	if (tb[OVS_ATTR_OPTIONS])
+		cfg->options = blobmsg_get_string(tb[OVS_ATTR_OPTIONS]);
 }
 
 enum dev_change_type

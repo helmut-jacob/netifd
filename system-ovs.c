@@ -129,3 +129,29 @@ int system_ovs_delport(struct device *ovs, struct device *dev)
 		return -1;
 	return 0;
 }
+
+int system_ovs_settype(struct device *dev, struct ovs_config *cfg)
+{
+	char buf[32];
+
+	if (!cfg->type)
+		return 0;
+
+	snprintf(buf, sizeof(buf)-1, "type=%s", cfg->type);
+	if (run_prog("/usr/bin/ovs-vsctl", "set", "interface", dev->ifname, buf))
+		return -1;
+	return 0;
+}
+
+int system_ovs_setoptions(struct device *dev, struct ovs_config *cfg)
+{
+	char buf[128];
+
+	if (!cfg->options)
+		return 0;
+
+	snprintf(buf, sizeof(buf), "options:%s", cfg->options);
+	if (run_prog("/usr/bin/ovs-vsctl", "set", "interface", dev->ifname, buf))
+		return -1;
+	return 0;
+}

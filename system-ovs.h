@@ -20,6 +20,8 @@ struct ovs_config {
 	bool empty;
 	int tag;
 	char *base;
+	char *type;
+	char *options;
 };
 
 void system_ovs_if_clear_state(struct device *dev);
@@ -27,5 +29,7 @@ int system_ovs_delbr(struct device *ovs);
 int system_ovs_addbr(struct device *ovs, struct ovs_config *cfg);
 int system_ovs_addport(struct device *ovs, struct device *dev);
 int system_ovs_delport(struct device *ovs, struct device *dev);
+int system_ovs_settype(struct device *dev, struct ovs_config *cfg);
+int system_ovs_setoptions(struct device *dev, struct ovs_config *cfg);
 
 #endif
